@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import serial
-from bottle import route, run, template, response
+from bottle import route, run, template, response, static_file
 
 port = serial.Serial("/dev/ttyUSB0", baudrate=115200,timeout=60)
 
@@ -24,6 +24,8 @@ def fetchurl(URL):
 			print repr(data)
 			if data[0:5] == "HTTP/":	#now receiveing header
 				fetchstate="headder"	#start saving headder
+			if data == "Could not establish connection\n":
+				return False
 
 		if fetchstate == "headder":		#save headders for later processing
 			#print "headder"
@@ -48,18 +50,31 @@ def fetchurl(URL):
 		data = port.readline(10000)	#read the next line for processing
 	return False
 
+def update_cache(url):
+	try:
+		f=open('cache/'+url,'w')
+		f.write(returndata)
+		f.close()
+	except:
+		print "unable to update cache for "+url
 
 @route('/node/<url:path>')
 def nodepages(url):
 	if (fetchurl(url)):
+		update_cache(url)
 		return returndata
 	else:
 		response.status=504
-		return "unable to comunicate with node"
+		return "unable to comunicate with node page might be <a href=\"../cache/"+url+"\">cached</a>"
+
+@route('/cache/<url:path>')
+def send_cache(url):
+	return static_file(url, root='cache/')
 
 @route('/')
 def index():
-	return "/node/2001:630:d0:f200:212:7400:1465:d8aa"
+	#return "<html><body><p><a href=\"/node/2001:630:d0:f200:212:7400:1465:d8aa\">Border Router page</a></p></html>"
+	return static_file("index.html", "")
 
 
 if __name__ == "__main__":
