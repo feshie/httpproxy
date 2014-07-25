@@ -2,8 +2,9 @@
 
 import serial
 from bottle import route, run, template, response, static_file
+import config
 
-port = serial.Serial("/dev/ttyUSB0", baudrate=115200,timeout=60)
+port = serial.Serial(config.node_serial_port, baudrate=115200,timeout=60)
 
 returnheadder=""
 returndata=""
@@ -73,7 +74,7 @@ def send_cache(url):
 
 @route('/')
 def index():
-	#return "<html><body><p><a href=\"/node/2001:630:d0:f200:212:7400:1465:d8aa\">Border Router page</a></p></html>"
+	#return "<html><body><p><a href=\"/node/"+config.Border_Router_IP+"\">Border Router page</a></p></html>"
 	return static_file("index.html", "")
 
 
