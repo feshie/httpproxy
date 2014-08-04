@@ -45,8 +45,8 @@ def fetchurl(URL):
 
 		elif fetchstate=="done":
 			#process final codes
-			if data == "Status = 200\n":	#look for an end condition
-				return 200		#return success
+			if data[0:8] == "Status = 200\n"[0:8]:	#look for an end condition
+				return int(data[9:12])		#return success
 
 		data = port.readline(10000)	#read the next line for processing
 	return False
